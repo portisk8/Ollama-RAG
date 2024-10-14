@@ -1,0 +1,1 @@
+Preguntas test para QNA
