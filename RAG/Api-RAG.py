@@ -15,12 +15,15 @@ from werkzeug.utils import secure_filename
 from flask_cors import CORS  # Importa CORS
 
 app = Flask(__name__)
-CORS(app)  # Esto habilitará CORS para todas las rutas
+CORS(app)  # Esto habilitarï¿½ CORS para todas las rutas
 
+with open('appsettings.json') as config_file:
+    config = json.load(config_file)
+    
 # Configuration
-LLAMA_MODEL = "llama3.1"
-EMBEDDING_MODEL = "nomic-embed-text"
-OLLAMA_URL = "http://localhost:11434"
+LLAMA_MODEL = config["Ollama"]["ChatModel"]
+EMBEDDING_MODEL = config["Ollama"]["EmbbeddingModel"]
+OLLAMA_URL = config["Ollama"]["Url"]
 UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'json', 'md'}
 encodings = ['utf-8', 'latin-1', 'ascii']
@@ -28,12 +31,13 @@ encodings = ['utf-8', 'latin-1', 'ascii']
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # SQL Server connection
+# SQL Server connection
 conn_str = (
-    r'DRIVER={ODBC Driver 17 for SQL Server};'
-    r'SERVER=SERVER;'
-    r'DATABASE=PortiBot;'
-    r'UID=USER;'
-    r'PWD=PASSWORD'
+    f'DRIVER={{ODBC Driver 17 for SQL Server}};'
+    f'SERVER={config["Database"]["Server"]};'
+    f'DATABASE={config["Database"]["Database"]};'
+    f'UID={config["Database"]["User"]};'
+    f'PWD={config["Database"]["Password"]}'
 )
 conn = pyodbc.connect(conn_str)
 cursor = conn.cursor()
@@ -197,7 +201,7 @@ Answer:"""
 @app.route('/projects', methods=['GET'])
 def get_projects():
     try:
-        # Crear un nuevo cursor para esta operación
+        # Crear un nuevo cursor para esta operaciï¿½n
         cursor = conn.cursor()
         
         # Ejecutar la consulta SQL para obtener todos los proyectos
@@ -232,10 +236,10 @@ def get_projects():
 @app.route('/project/<int:project_id>', methods=['GET'])
 def get_project_name(project_id):
     try:
-        # Crear un nuevo cursor para esta operación
+        # Crear un nuevo cursor para esta operaciï¿½n
         cursor = conn.cursor()
         
-        # Ejecutar la consulta SQL para obtener el nombre del proyecto según el ID
+        # Ejecutar la consulta SQL para obtener el nombre del proyecto segï¿½n el ID
         cursor.execute("""
             SELECT name
             FROM projects 
@@ -248,7 +252,7 @@ def get_project_name(project_id):
         # Cerrar el cursor
         cursor.close()
 
-        # Verificar si se encontró un proyecto con el ID proporcionado
+        # Verificar si se encontrï¿½ un proyecto con el ID proporcionado
         if project:
             # Devolver el nombre del proyecto
             return jsonify({'name': project.name}), 200
